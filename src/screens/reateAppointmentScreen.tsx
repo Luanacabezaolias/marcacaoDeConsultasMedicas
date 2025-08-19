@@ -2,7 +2,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { Button } from 'react-native-elements';
 import styled from 'styled-components/native';
-import { HeaderContainer, HeaderTitle } from '../components/Header';
+import { HeaderContainer, HeaderTitle } from '../components/src/components/Header';
 import theme from '../styles/theme';
 
 type RootStackParamList = {

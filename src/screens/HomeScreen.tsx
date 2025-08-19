@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import { FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import { FontAwesome } from '@expo/vector-icons';
-import { HeaderContainer, HeaderTitle } from '../components/Header';
+import { HeaderContainer, HeaderTitle } from '../components/src/components/Header';
 import theme from '../styles/theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
