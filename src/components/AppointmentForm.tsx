@@ -1,76 +1,82 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import { Button, Input, Text } from 'react-native-elements';
-import { Platform, View, TouchableOpacity } from 'react-native';
-import theme from '../styles/theme';
-import { Doctor } from '../types/doctors';
-import { Appointment } from '../types/appointments';
+import { Button, Input, Text } from 'react-native-elements'; // Componentes de UI da biblioteca react-native-elements
+import { Platform, View, TouchableOpacity } from 'react-native'; // Componentes básicos do React Native
+import theme from '../styles/theme'; // Tema e estilo global da aplicação
+import { Doctor } from '../types/doctors'; // Tipos de dados relacionados aos médicos
+import { Appointment } from '../types/appointments'; // Tipos de dados relacionados aos agendamentos
 
+// Lista de médicos fictícios para seleção na interface
 const doctors: Doctor[] = [
    {
       id: '1',
       name: 'Dr. João Silva',
       specialty: 'Cardiologista',
-      image: 'https://mighty.tools/mockmind-api/content/human/91.jpg',
+      image: 'https://mighty.tools/mockmind-api/content/human/91.jpg', // Imagem do médico
    },
    {
       id: '2',
       name: 'Dra. Maria Santos',
       specialty: 'Dermatologista',
-      image: 'https://mighty.tools/mockmind-api/content/human/97.jpg',
+      image: 'https://mighty.tools/mockmind-api/content/human/97.jpg', // Imagem do médico
    },
    {
       id: '3',
       name: 'Dr. Pedro Oliveira',
       specialty: 'Oftalmologista',
-      image: 'https://mighty.tools/mockmind-api/content/human/79.jpg',
+      image: 'https://mighty.tools/mockmind-api/content/human/79.jpg', // Imagem do médico
    },
 ];
 
+// Tipo para as propriedades do componente de agendamento
 type AppointmentFormProps = {
    onSubmit: (appointment: {
       doctorId: string;
       date: Date;
       time: string;
       description: string;
-   }) => void;
+   }) => void; // Função que será chamada ao enviar o formulário
 };
 
+// Função para gerar slots de horários para agendamento (9:00 até 18:00)
 const generateTimeSlots = () => {
    const slots = [];
    for (let hour = 9; hour < 18; hour++) {
-      slots.push(`${hour.toString().padStart(2, '0')}:00`);
-      slots.push(`${hour.toString().padStart(2, '0')}:30`);
+      slots.push(`${hour.toString().padStart(2, '0')}:00`); // Adiciona slots de hora inteira
+      slots.push(`${hour.toString().padStart(2, '0')}:30`); // Adiciona slots de meia hora
    }
    return slots;
 };
 
+// Componente do formulário de agendamento
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
-   const [selectedDoctor, setSelectedDoctor] = useState<string>('');
-   const [dateInput, setDateInput] = useState('');
-   const [selectedTime, setSelectedTime] = useState<string>('');
-   const [description, setDescription] = useState('');
-   const timeSlots = generateTimeSlots();
+   const [selectedDoctor, setSelectedDoctor] = useState<string>(''); // Estado para armazenar o médico selecionado
+   const [dateInput, setDateInput] = useState(''); // Estado para armazenar a data formatada
+   const [selectedTime, setSelectedTime] = useState<string>(''); // Estado para armazenar o horário selecionado
+   const [description, setDescription] = useState(''); // Estado para armazenar a descrição da consulta
+   const timeSlots = generateTimeSlots(); // Gera os slots de horários
 
+   // Função para validar a data informada pelo usuário
    const validateDate = (inputDate: string) => {
-      const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+      const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/; // Regex para validar o formato da data (DD/MM/AAAA)
       const match = inputDate.match(dateRegex);
 
-      if (!match) return false;
+      if (!match) return false; // Se a data não corresponder ao padrão, retorna false
 
-      const [, day, month, year] = match;
-      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      const today = new Date();
-      const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 3));
+      const [, day, month, year] = match; // Desestruturação da data
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day)); // Criação do objeto Date
+      const today = new Date(); // Data atual
+      const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 3)); // Data máxima (3 meses à frente)
 
+      // Verifica se a data está dentro do intervalo válido (hoje até 3 meses à frente)
       return date >= today && date <= maxDate;
    };
 
+   // Função para lidar com a mudança da data digitada pelo usuário
    const handleDateChange = (text: string) => {
-      // Remove todos os caracteres não numéricos
-      const numbers = text.replace(/\D/g, '');
+      const numbers = text.replace(/\D/g, ''); // Remove caracteres não numéricos (apenas números)
       
-      // Formata a data enquanto digita
+      // Formata a data conforme o usuário digita
       let formattedDate = '';
       if (numbers.length > 0) {
          if (numbers.length <= 2) {
@@ -82,20 +88,24 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
          }
       }
 
-      setDateInput(formattedDate);
+      setDateInput(formattedDate); // Atualiza o estado da data formatada
    };
 
+   // Função chamada quando o usuário clica no botão de agendamento
    const handleSubmit = () => {
+      // Verifica se todos os campos foram preenchidos
       if (!selectedDoctor || !selectedTime || !description) {
          alert('Por favor, preencha todos os campos');
          return;
       }
 
+      // Valida se a data fornecida é válida
       if (!validateDate(dateInput)) {
          alert('Por favor, insira uma data válida (DD/MM/AAAA)');
          return;
       }
 
+      // Formata a data e chama a função de envio
       const [day, month, year] = dateInput.split('/');
       const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
 
@@ -107,21 +117,21 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
       });
    };
 
+   // Função para verificar se o horário está disponível (aqui é apenas um mock, você pode adicionar lógica real)
    const isTimeSlotAvailable = (time: string) => {
-      // Aqui você pode adicionar lógica para verificar se o horário está disponível
-      // Por exemplo, verificar se já existe uma consulta agendada para este horário
       return true;
    };
 
    return (
       <Container>
+         {/* Seção para selecionar o médico */}
          <Title>Selecione o Médico</Title>
          <DoctorList>
             {doctors.map((doctor) => (
                <DoctorCard
                   key={doctor.id}
                   selected={selectedDoctor === doctor.id}
-                  onPress={() => setSelectedDoctor(doctor.id)}
+                  onPress={() => setSelectedDoctor(doctor.id)} // Atualiza o médico selecionado ao clicar
                >
                   <DoctorImage source={{ uri: doctor.image }} />
                   <DoctorInfo>
@@ -132,17 +142,19 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
             ))}
          </DoctorList>
 
+         {/* Seção para escolher a data */}
          <Title>Data e Hora</Title>
          <Input
             placeholder="Data (DD/MM/AAAA)"
             value={dateInput}
-            onChangeText={handleDateChange}
+            onChangeText={handleDateChange} // Lida com a mudança de texto na data
             keyboardType="numeric"
             maxLength={10}
             containerStyle={InputContainer}
-            errorMessage={dateInput && !validateDate(dateInput) ? 'Data inválida' : undefined}
+            errorMessage={dateInput && !validateDate(dateInput) ? 'Data inválida' : undefined} // Exibe erro se a data for inválida
          />
 
+         {/* Seção para escolher o horário */}
          <TimeSlotsContainer>
             <TimeSlotsTitle>Horários Disponíveis:</TimeSlotsTitle>
             <TimeSlotsGrid>
@@ -151,9 +163,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
                   return (
                      <TimeSlotButton
                         key={time}
-                        selected={selectedTime === time}
-                        disabled={!isAvailable}
-                        onPress={() => isAvailable && setSelectedTime(time)}
+                        selected={selectedTime === time} // Marca o horário selecionado
+                        disabled={!isAvailable} // Desabilita horários indisponíveis
+                        onPress={() => isAvailable && setSelectedTime(time)} // Atualiza o horário selecionado
                      >
                         <TimeSlotText selected={selectedTime === time} disabled={!isAvailable}>
                            {time}
@@ -164,18 +176,20 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
             </TimeSlotsGrid>
          </TimeSlotsContainer>
 
+         {/* Seção para descrição da consulta */}
          <Input
             placeholder="Descrição da consulta"
             value={description}
-            onChangeText={setDescription}
+            onChangeText={setDescription} // Atualiza a descrição
             multiline
             numberOfLines={4}
             containerStyle={InputContainer}
          />
 
+         {/* Botão de submit */}
          <SubmitButton
             title="Agendar Consulta"
-            onPress={handleSubmit}
+            onPress={handleSubmit} // Chama a função de submit quando pressionado
             buttonStyle={{
                backgroundColor: theme.colors.primary,
                borderRadius: 8,
@@ -187,6 +201,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
    );
 };
 
+// Estilos usando styled-components
 const Container = styled.View`
   padding: ${theme.spacing.medium}px;
 `;
@@ -295,4 +310,4 @@ const SubmitButton = styled(Button)`
   margin-top: ${theme.spacing.large}px;
 `;
 
-export default AppointmentForm; 
+export default AppointmentForm;

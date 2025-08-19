@@ -1,10 +1,14 @@
 import React from 'react';
+// Importa o container de navegação do React Navigation
 import { NavigationContainer } from '@react-navigation/native';
+// Cria a pilha de navegação nativa
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// Hook para obter informações do usuário autenticado
 import { useAuth } from '../contexts/AuthContext';
+// Tipagem das rotas da aplicação
 import { RootStackParamList } from '../types/navigation';
 
-// Screens
+// Importa todas as telas da aplicação
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
@@ -17,32 +21,36 @@ import PatientDashboardScreen from '../screens/PatientDashboardScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
+// Cria a stack navigator com tipagem das rotas
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// Componente principal do Navigator da aplicação
 export const AppNavigator: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuth(); // Pega o usuário e estado de loading do contexto de autenticação
 
+  // Enquanto os dados do usuário estão carregando, não renderiza nada (ou poderia ser um loading)
   if (loading) {
-    return null; // Ou um componente de loading
+    return null; 
   }
 
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerShown: false,
+          headerShown: false, // Remove o header padrão de todas as telas
         }}
       >
         {!user ? (
-          // Rotas públicas
+          // Se não tiver usuário logado, renderiza apenas as rotas públicas
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         ) : (
-          // Rotas protegidas
+          // Se tiver usuário logado, renderiza as rotas protegidas
           <>
             {user.role === 'admin' && (
+              // Tela exclusiva para administrador
               <Stack.Screen 
                 name="AdminDashboard" 
                 component={AdminDashboardScreen}
@@ -51,6 +59,7 @@ export const AppNavigator: React.FC = () => {
             )}
             
             {user.role === 'doctor' && (
+              // Tela exclusiva para médico
               <Stack.Screen 
                 name="DoctorDashboard" 
                 component={DoctorDashboardScreen}
@@ -59,6 +68,7 @@ export const AppNavigator: React.FC = () => {
             )}
             
             {user.role === 'patient' && (
+              // Tela exclusiva para paciente
               <Stack.Screen 
                 name="PatientDashboard" 
                 component={PatientDashboardScreen}
@@ -102,4 +112,4 @@ export const AppNavigator: React.FC = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-}; 
+};
