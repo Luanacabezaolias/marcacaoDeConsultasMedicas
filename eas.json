@@ -1,21 +1,23 @@
 {
-  "cli": {
-    "version": ">= 16.6.1",
-    "appVersionSource": "remote"
+  "cli": {                                // Configurações da CLI (linha de comando do Expo)
+    "version": ">= 16.6.1",               // Versão mínima do Expo CLI necessária
+    "appVersionSource": "remote"          // Origem da versão do app (remote = gerenciado pelo EAS)
   },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
+
+  "build": {                              // Configurações para diferentes perfis de build
+    "development": {                      // Perfil "development" (usado em testes locais)
+      "developmentClient": true,          // Gera um Development Build (cliente de desenvolvimento)
+      "distribution": "internal"          // Distribuição interna (não vai para a loja)
     },
-    "preview": {
-      "distribution": "internal"
+    "preview": {                          // Perfil "preview" (para builds de teste, ex: QA)
+      "distribution": "internal"          // Também só distribui internamente
     },
-    "production": {
-      "autoIncrement": true
+    "production": {                       // Perfil "production" (para envio às lojas)
+      "autoIncrement": true               // Incrementa automaticamente o número da versão a cada build
     }
   },
-  "submit": {
-    "production": {}
+
+  "submit": {                             // Configuração do processo de submissão (upload p/ lojas)
+    "production": {}                      // Perfil de submissão para produção (pode ter configs extras)
   }
 }
