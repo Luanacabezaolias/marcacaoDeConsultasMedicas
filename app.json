@@ -1,28 +1,33 @@
 {
-  "expo": {
-    "name": "meuPrimeiroAppRN",
-    "slug": "meuPrimeiroAppRN",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+  "expo": {                       // Todas as configurações do app ficam dentro dessa chave
+    "name": "meuPrimeiroAppRN",   // Nome do aplicativo (aparece em alguns lugares como título)
+    "slug": "meuPrimeiroAppRN",   // Identificador único do projeto no Expo
+    "version": "1.0.0",           // Versão do app
+    "orientation": "portrait",    // Orientação fixa da tela (portrait = vertical)
+    "icon": "./assets/icon.png",  // Caminho para o ícone do app
+    "userInterfaceStyle": "light",// Tema padrão (light/dark/automatic)
+
+    "newArchEnabled": true,       // Habilita a Nova Arquitetura do React Native (TurboModules/Fabric)
+
+    "splash": {                   // Configuração da tela de splash (abertura do app)
+      "image": "./assets/splash-icon.png", // Imagem que aparece no splash
+      "resizeMode": "contain",             // Ajuste da imagem (contain = sem cortar, cabendo na tela)
+      "backgroundColor": "#ffffff"         // Cor de fundo do splash
     },
-    "ios": {
-      "supportsTablet": true
+
+    "ios": {                       // Configurações específicas para iOS
+      "supportsTablet": true       // Permite rodar em iPad (true) ou não
     },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+
+    "android": {                   // Configurações específicas para Android
+      "adaptiveIcon": {            // Ícone adaptativo (diferente do padrão do iOS)
+        "foregroundImage": "./assets/adaptive-icon.png", // Parte da frente do ícone
+        "backgroundColor": "#ffffff"                    // Cor do fundo
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+
+    "web": {                       // Configurações quando o app roda no navegador (via Expo Web)
+      "favicon": "./assets/favicon.png" // Ícone da aba do navegador
     }
   }
 }
