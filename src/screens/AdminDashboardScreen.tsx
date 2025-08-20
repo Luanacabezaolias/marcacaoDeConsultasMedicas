@@ -1,22 +1,33 @@
+// React e libs
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
 import { ScrollView, ViewStyle, TextStyle } from 'react-native';
 import { Button, ListItem, Text } from 'react-native-elements';
+
+// Contexto de autenticação
 import { useAuth } from '../contexts/AuthContext';
+
+// Navegação
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
+
+// Estilos e componentes
 import theme from '../styles/theme';
 import Header from '../components/Header';
 import StatisticsCard from '../components/StatisticsCard';
+
+// Serviços e tipos
 import { statisticsService, Statistics } from '../services/statistics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Tipagem para navegação
 type AdminDashboardScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'AdminDashboard'>;
 };
 
+// Modelo de Consulta
 interface Appointment {
   id: string;
   patientId: string;
@@ -28,6 +39,7 @@ interface Appointment {
   status: 'pending' | 'confirmed' | 'cancelled';
 }
 
+// Modelo de Usuário
 interface User {
   id: string;
   name: string;
@@ -35,10 +47,12 @@ interface User {
   role: 'admin' | 'doctor' | 'patient';
 }
 
+// Tipagem para componentes estilizados
 interface StyledProps {
   status: string;
 }
 
+// Função que retorna a cor do status da consulta
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'confirmed':
@@ -50,6 +64,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
+// Função que retorna o texto do status da consulta
 const getStatusText = (status: string) => {
   switch (status) {
     case 'confirmed':
@@ -61,31 +76,35 @@ const getStatusText = (status: string) => {
   }
 };
 
+// Tela principal
 const AdminDashboardScreen: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuth(); // contexto de autenticação
   const navigation = useNavigation<AdminDashboardScreenProps['navigation']>();
+  
+  // Estados locais
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Carrega dados do AsyncStorage e serviço
   const loadData = async () => {
     try {
-      // Carrega consultas
+      // Consultas salvas
       const storedAppointments = await AsyncStorage.getItem('@MedicalApp:appointments');
       if (storedAppointments) {
         const allAppointments: Appointment[] = JSON.parse(storedAppointments);
         setAppointments(allAppointments);
       }
 
-      // Carrega usuários
+      // Usuários salvos
       const storedUsers = await AsyncStorage.getItem('@MedicalApp:users');
       if (storedUsers) {
         const allUsers: User[] = JSON.parse(storedUsers);
         setUsers(allUsers);
       }
 
-      // Carrega estatísticas
+      // Estatísticas gerais (via service)
       const stats = await statisticsService.getGeneralStatistics();
       setStatistics(stats);
     } catch (error) {
@@ -95,13 +114,14 @@ const AdminDashboardScreen: React.FC = () => {
     }
   };
 
-  // Carrega os dados quando a tela estiver em foco
+  // Atualiza dados sempre que a tela ficar em foco
   useFocusEffect(
     React.useCallback(() => {
       loadData();
     }, [])
   );
 
+  // Atualiza o status de uma consulta
   const handleUpdateStatus = async (appointmentId: string, newStatus: 'confirmed' | 'cancelled') => {
     try {
       const storedAppointments = await AsyncStorage.getItem('@MedicalApp:appointments');
@@ -114,7 +134,7 @@ const AdminDashboardScreen: React.FC = () => {
           return appointment;
         });
         await AsyncStorage.setItem('@MedicalApp:appointments', JSON.stringify(updatedAppointments));
-        loadData(); // Recarrega os dados
+        loadData(); // recarrega lista
       }
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
@@ -123,10 +143,13 @@ const AdminDashboardScreen: React.FC = () => {
 
   return (
     <Container>
+      {/* Header fixo */}
       <Header />
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Title>Painel Administrativo</Title>
 
+        {/* Botões de navegação */}
         <Button
           title="Gerenciar Usuários"
           onPress={() => navigation.navigate('UserManagement')}
@@ -141,6 +164,7 @@ const AdminDashboardScreen: React.FC = () => {
           buttonStyle={styles.buttonStyle}
         />
 
+        {/* Estatísticas gerais */}
         <SectionTitle>Estatísticas Gerais</SectionTitle>
         {statistics && (
           <StatisticsGrid>
@@ -171,12 +195,13 @@ const AdminDashboardScreen: React.FC = () => {
           </StatisticsGrid>
         )}
 
+        {/* Especialidades mais buscadas */}
         <SectionTitle>Especialidades Mais Procuradas</SectionTitle>
         {statistics && Object.entries(statistics.specialties).length > 0 && (
           <SpecialtyContainer>
             {Object.entries(statistics.specialties)
-              .sort(([,a], [,b]) => b - a)
-              .slice(0, 3)
+              .sort(([,a], [,b]) => b - a) // ordena por quantidade
+              .slice(0, 3) // pega as top 3
               .map(([specialty, count]) => (
                 <SpecialtyItem key={specialty}>
                   <SpecialtyName>{specialty}</SpecialtyName>
@@ -187,6 +212,7 @@ const AdminDashboardScreen: React.FC = () => {
           </SpecialtyContainer>
         )}
 
+        {/* Últimas consultas */}
         <SectionTitle>Últimas Consultas</SectionTitle>
         {loading ? (
           <LoadingText>Carregando dados...</LoadingText>
@@ -205,11 +231,15 @@ const AdminDashboardScreen: React.FC = () => {
                 <Text style={styles.dateTime as TextStyle}>
                   {appointment.date} às {appointment.time}
                 </Text>
+
+                {/* Badge de status */}
                 <StatusBadge status={appointment.status}>
                   <StatusText status={appointment.status}>
                     {getStatusText(appointment.status)}
                   </StatusText>
                 </StatusBadge>
+
+                {/* Ações só aparecem se estiver pendente */}
                 {appointment.status === 'pending' && (
                   <ButtonContainer>
                     <Button
@@ -231,6 +261,7 @@ const AdminDashboardScreen: React.FC = () => {
           ))
         )}
 
+        {/* Botão de logout */}
         <Button
           title="Sair"
           onPress={signOut}
@@ -242,51 +273,21 @@ const AdminDashboardScreen: React.FC = () => {
   );
 };
 
+// ===== Estilos =====
 const styles = {
-  scrollContent: {
-    padding: 20,
-  },
-  button: {
-    marginBottom: 20,
-    width: '100%',
-  },
-  buttonStyle: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 12,
-  },
-  logoutButton: {
-    backgroundColor: theme.colors.error,
-    paddingVertical: 12,
-  },
-  actionButton: {
-    marginTop: 8,
-    width: '48%',
-  },
-  confirmButton: {
-    backgroundColor: theme.colors.success,
-    paddingVertical: 8,
-  },
-  cancelButton: {
-    backgroundColor: theme.colors.error,
-    paddingVertical: 8,
-  },
-  doctorName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: theme.colors.text,
-  },
-  specialty: {
-    fontSize: 14,
-    color: theme.colors.text,
-    marginTop: 4,
-  },
-  dateTime: {
-    fontSize: 14,
-    color: theme.colors.text,
-    marginTop: 4,
-  },
+  scrollContent: { padding: 20 },
+  button: { marginBottom: 20, width: '100%' },
+  buttonStyle: { backgroundColor: theme.colors.primary, paddingVertical: 12 },
+  logoutButton: { backgroundColor: theme.colors.error, paddingVertical: 12 },
+  actionButton: { marginTop: 8, width: '48%' },
+  confirmButton: { backgroundColor: theme.colors.success, paddingVertical: 8 },
+  cancelButton: { backgroundColor: theme.colors.error, paddingVertical: 8 },
+  doctorName: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
+  specialty: { fontSize: 14, color: theme.colors.text, marginTop: 4 },
+  dateTime: { fontSize: 14, color: theme.colors.text, marginTop: 4 },
 };
 
+// Componentes estilizados com styled-components
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.background};
@@ -388,4 +389,4 @@ const SpecialtyCount = styled.Text`
   font-weight: 600;
 `;
 
-export default AdminDashboardScreen; 
+export default AdminDashboardScreen;
